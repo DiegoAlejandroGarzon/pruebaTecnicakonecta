@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,30 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group([
+    'prefix' => 'auth'
+], function () {
+    Route::post('register', [AuthController::class, 'register']);
+
+    Route::group([
+        'middleware' => 'jwt.verify'
+    ], function() {
+        // Route::get('user', 'AuthController@user');
+    });
+    
+});
+Route::group([
+
+    // 'middleware' => 'api',
+    'prefix' => 'auth'
+
+], function ($router) {
+
+    Route::post('login', [AuthController::class, 'login'])->name("loginAutenticate");
+    
+    Route::match(['get', 'post'], 'logout', [AuthController::class, 'logout']);
+    Route::match(['get', 'post'], 'me', [AuthController::class, 'me']);
+    // Route::post('refresh', 'AuthController@refresh');
+        // Route::post('me', [AuthController::class, 'me']);
+
 });
